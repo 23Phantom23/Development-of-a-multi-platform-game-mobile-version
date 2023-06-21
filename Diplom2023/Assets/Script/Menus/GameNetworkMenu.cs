@@ -16,10 +16,13 @@ public class GameNetworkMenu : MonoBehaviourPunCallbacks
     [SerializeField] private Text CountPlayersText;
     [SerializeField] private RoomList itemPrefab;
     [SerializeField] private Transform content;
+    [SerializeField] private GameObject MenuSelectHero;
 
     void Start()
     {
+        MenuSelectHero.SetActive(true);
         PhotonNetwork.ConnectUsingSettings();
+        MenuSelectHero.SetActive(false);
     }
     private void Update()
     {
@@ -28,23 +31,36 @@ public class GameNetworkMenu : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
-        bool visible = true;
+        MenuSelectHero.SetActive(true);
+        SelectHero.CreateOrConnect = "Create";
+
+        SelectHero.visible = true;
         if (IsVisibleSlider.value == 0)
         {
-            visible = false;
+            SelectHero.visible = false;
         }else if (IsVisibleSlider.value == 1)
         {
-            visible = true;
+            SelectHero.visible = true;
         }
-
-        RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = (byte)CountPlayers.value; //(byte)CountPlayers.value;
-        roomOptions.IsVisible = visible; //true or false \ visible;
-        PhotonNetwork.CreateRoom(IDRoomCreate.text, roomOptions);
+        SelectHero.countPlayer = (byte)CountPlayers.value;
+        SelectHero.IDRoomCreate = IDRoomCreate.text;
     }
     public void JoinRoom()
     {
-        PhotonNetwork.JoinRoom(IDRoomJoin.text);
+        MenuSelectHero.SetActive(true);
+        SelectHero.CreateOrConnect = "Connect";
+        SelectHero.IDRoomJoin = IDRoomJoin.text;
+    }
+
+    public void CloseMenuSelectHero()
+    {
+        SelectHero.CreateOrConnect = "";
+        SelectHero.visible = true;
+        SelectHero.countPlayer = 0;
+        SelectHero.IDRoomJoin = IDRoomJoin.text;
+        SelectHero.IDRoomCreate = "";
+        SelectHero.IDRoomJoin = "";
+        MenuSelectHero.SetActive(false);
     }
 
     public override void OnJoinedRoom()

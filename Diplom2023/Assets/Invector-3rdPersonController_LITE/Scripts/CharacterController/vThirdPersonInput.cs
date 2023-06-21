@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using Photon.Pun;
 
 namespace Invector.vCharacterController
@@ -11,7 +12,10 @@ namespace Invector.vCharacterController
         private FloatingJoystick _floatingJoystick;
         public KeyCode jumpInput = KeyCode.Space;
         public KeyCode strafeInput = KeyCode.Tab;
-        public KeyCode sprintInput = KeyCode.LeftShift;
+
+        public bool sprintInput = UiButtons.sprintInput;  //Mobile
+        //public bool sprintInput = KeyCode.LeftShift;  //PC
+
 
         [Header("Camera Input")]
         private Vector3 firstPoint;
@@ -26,9 +30,11 @@ namespace Invector.vCharacterController
         [HideInInspector] public vThirdPersonCamera tpCamera;
         [HideInInspector] public Camera cameraMain;
 
+        public Transform rHandWeaponSlot;
 
         private PhotonView _photonView;
-        //private Rigidbody _rigidbody;
+        public bool isOpenFlourInv = false; //PC
+        public bool isOpenInv = false; //PC
 
         #endregion
 
@@ -40,10 +46,44 @@ namespace Invector.vCharacterController
             _floatingJoystick = FindObjectOfType<FloatingJoystick>();
             _photonView = GetComponent<PhotonView>();
             cam = FindObjectOfType<Camera>();
+
+            
+            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            foreach (GameObject player in players)
+            {
+                if (!MenuGame.OnlineOffline)
+                {
+                    Destroy(player.transform.Find("Quad").gameObject);
+                    break;
+                }
+                if (player.GetComponent<PhotonView>().IsMine == false)
+                {
+                    Destroy(player.GetComponent<SphereCollider>());
+                    Destroy(player.GetComponent<Damage>());
+                    Destroy(player.transform.Find("Map").gameObject);
+                }
+                if (player.GetComponent<PhotonView>().IsMine == true)
+                {
+                    Destroy(player.transform.Find("Quad").gameObject);
+                }
+            }
+
+
+            //rHandWeaponSlot = GameObject.Find("PT_Right_Hand_Weapon_slot").GetComponent<Transform>();
+            //lHandWeaponSlot = GameObject.Find("PT_Left_Hand_Weapon_slot").GetComponent<Transform>();
+            //secondWeaponSlot = GameObject.Find("PT_Second_Weapon_slot").GetComponent<Transform>();
+            //sheatSlot =  = GameObject.Find("PT_Sheat_slot").GetComponent<Transform>();
         }
 
         protected virtual void FixedUpdate()
         {
+            if (!MenuGame.OnlineOffline)
+            {
+                cc.UpdateMotor();               // updates the ThirdPersonMotor methods
+                cc.ControlLocomotionType();     // handle the controller locomotion type and movespeed
+                cc.ControlRotationType();       // handle the controller rotation type
+                return;
+            }
             if (!_photonView.IsMine)
                 return;
 
@@ -57,6 +97,31 @@ namespace Invector.vCharacterController
         {
             InputHandle();                  // update the input methods
             cc.UpdateAnimator();            // updates the Animator Parameters
+
+            if (rHandWeaponSlot.GetChild(0) != null && rHandWeaponSlot.GetChild(0).GetComponent<Rigidbody>() != null)
+            {
+                DestroyColliders(rHandWeaponSlot.GetChild(0).gameObject);
+            }
+        }
+
+        public void DestroyColliders(GameObject gameObject)
+        {
+            rHandWeaponSlot.GetChild(0).tag = "Weapon";
+            rHandWeaponSlot.GetChild(0).gameObject.layer = LayerMask.NameToLayer("weapon");
+            Destroy(rHandWeaponSlot.GetChild(0).GetComponent<Rigidbody>());
+            Destroy(rHandWeaponSlot.GetChild(0).GetComponent<PhotonView>());
+            Destroy(rHandWeaponSlot.GetChild(0).GetComponent<PhotonTransformView>());
+
+            Collider[] colliders = gameObject.GetComponents<Collider>();
+            foreach (Collider collider in colliders)
+            {
+                Destroy(collider);
+            }
+            
+            var colider = gameObject.AddComponent<BoxCollider>();
+            colider.isTrigger = true;
+            colider.size = new Vector3(7.88f, 17.32f, 1f);
+            colider.center = new Vector3(4.42f, -0.9f, 0f);
         }
 
         public virtual void OnAnimatorMove()
@@ -91,19 +156,82 @@ namespace Invector.vCharacterController
 
         protected virtual void InputHandle()
         {
+            if (!MenuGame.OnlineOffline)
+            {
+                MoveInput();
+                CameraInput();
+                SprintInput();
+                OpenInvFlour();//PC
+                OpenInv();//PC
+                //Attack();//PC
+                return;
+            }
             if (!_photonView.IsMine)
                 return;
-
 
             MoveInput();
             CameraInput();
             SprintInput();
+            OpenInvFlour();//PC
+            OpenInv();//PC
+            //Attack();//PC
         }
+
+        //PC
+        public virtual void Attack()
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                UiButtons.anim.Play("Attack_Sword");
+            }
+        }
+        //PC
+        public virtual void OpenInvFlour()
+        {
+            if (Input.GetKeyDown(KeyCode.B))
+            {
+                isOpenFlourInv = !isOpenFlourInv;
+                if (isOpenFlourInv == true)
+                {
+                    MenuOnFlour.menuItemsOnFlour.SetActive(false);
+                } 
+                else
+                {
+                    MenuOnFlour.menuItemsOnFlour.SetActive(true);
+                    MenuOnFlour.UpdateItemsOnFlour(ItemsOnFlourScript.CountItemsInFlour, ItemsOnFlourScript.objectsInTrigger);
+                }
+            }
+        }
+        //PC
+        public virtual void OpenInv()
+        {
+            if (Input.GetKeyDown(KeyCode.I))
+            {
+                isOpenInv = !isOpenInv;
+                if (isOpenInv == true)
+                {
+                    MenuOnFlour.DestroyChild();
+                    MenuOnFlour.listsFlour.Clear();
+                    MenuOnFlour.countItemsOn = 0;
+                    MenuOnFlour.iDSelectedOnFlourInt = 0;
+                    InventoryManager.menuInventory.SetActive(false);
+                }
+                else
+                {
+                    InventoryManager.menuInventory.SetActive(true);
+                }
+            }
+        }
+
 
         public virtual void MoveInput()
         {
             cc.input.x = _floatingJoystick.Horizontal;
             cc.input.z = _floatingJoystick.Vertical;
+            /* //PC
+            cc.input.x = Input.GetAxis(horizontalInput);
+            cc.input.z = Input.GetAxis(verticallInput);
+            */
         }
 
         protected virtual void CameraInput()
@@ -126,10 +254,6 @@ namespace Invector.vCharacterController
             if (tpCamera == null)
                 return;
 
-
-            /*var Y = Input.GetAxis(rotateCameraYInput);
-            var X = Input.GetAxis(rotateCameraXInput);*/
-
             foreach (Touch touch in Input.touches)
             {
                 if (touch.position.x > Screen.width / 2 & touch.phase == TouchPhase.Began)
@@ -142,26 +266,56 @@ namespace Invector.vCharacterController
                 {
                     secondPoint = touch.position;
                     yAngle = yAngleTemp - (secondPoint.x - firstPoint.x) * 180 / Screen.width;
-                    //cam.transform.rotation = Quaternion.Euler(0, yAngle, 0);
                     tpCamera.RotateCamera(yAngle, xAngle);
                 }
             }
 
-            //tpCamera.RotateCamera(xAngle, yAngle);
+            /* //PC
+            if (!cameraMain)
+            {
+                if (!Camera.main) Debug.Log("Missing a Camera with the tag MainCamera, please add one.");
+                else
+                {
+                    cameraMain = Camera.main;
+                    cc.rotateTarget = cameraMain.transform;
+                }
+            }
+
+            if (cameraMain)
+            {
+                cc.UpdateMoveDirection(cameraMain.transform);
+            }
+
+            if (tpCamera == null)
+                return;
+
+            var Y = Input.GetAxis(rotateCameraYInput);
+            var X = Input.GetAxis(rotateCameraXInput);
+
+            tpCamera.RotateCamera(X, Y); 
+            */
         }
 
         protected virtual void SprintInput()
         {
+            sprintInput = UiButtons.sprintInput;
+            if (sprintInput == true)
+            {
+                cc.Sprint(true);
+            }
+            else if (sprintInput == false)
+            {
+                cc.Sprint(false);
+            }
+
+            /*  //PC
             if (Input.GetKeyDown(sprintInput))
                 cc.Sprint(true);
             else if (Input.GetKeyUp(sprintInput))
                 cc.Sprint(false);
+            */
         }
 
-        /// <summary>
-        /// Conditions to trigger the Jump animation & behavior
-        /// </summary>
-        /// <returns></returns>
         protected virtual bool JumpConditions()
         {
             return cc.isGrounded && cc.GroundAngle() < cc.slopeLimit && !cc.isJumping && !cc.stopMove;

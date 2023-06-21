@@ -5,7 +5,7 @@ public class vThirdPersonCamera : MonoBehaviour
 {
     #region inspector properties    
 
-    public Transform target;
+    public static Transform target;
     [Tooltip("Lerp speed between Camera States")]
     public float smoothCameraRotation = 12f;
     [Tooltip("What layer will be culled")]
@@ -65,7 +65,7 @@ public class vThirdPersonCamera : MonoBehaviour
 
     public void Init()
     {
-        target = GameObject.Find("PlayerPrefabTwo(Clone)").GetComponent<Transform>();
+        target = GameObject.Find(PlayerManager.YouPerson + "(Clone)").GetComponent<Transform>();        //Сюди назву префаба персонажа
         if (target == null)
             return;
 

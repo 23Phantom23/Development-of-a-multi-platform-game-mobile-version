@@ -5,8 +5,6 @@ namespace Invector.vCharacterController
 {
     public class vThirdPersonController : vThirdPersonAnimator
     {
-        //public Animator animatorr;
-        //private PhotonView photonView;
 
         public virtual void ControlAnimatorRootMotion()
         {
@@ -24,6 +22,7 @@ namespace Invector.vCharacterController
 
         public virtual void ControlLocomotionType()
         {
+            
             if (lockMovement) return;
 
             if (locomotionType.Equals(LocomotionType.FreeWithStrafe) && !isStrafing || locomotionType.Equals(LocomotionType.OnlyFree))
@@ -94,39 +93,21 @@ namespace Invector.vCharacterController
                     if (isGrounded && useContinuousSprint)
                     {
                         isSprinting = !isSprinting;
-                        /*Debug.Log("ShiftTrue");
-                        SetAnimBool(this.gameObject.GetPhotonView().ViewID, "isSprinting", isSprinting);
-                        photonView.RPC("isSprinting", RpcTarget.All, this.gameObject.GetPhotonView().ViewID, isSprinting);*/
                     }
                     else if (!isSprinting)
                     {
                         isSprinting = true;
-                        /*photonView.RPC("isSprinting", RpcTarget.All, this.gameObject.GetPhotonView().ViewID, isSprinting);
-                        Debug.Log("ShiftTrue");
-                        SetAnimBool(this.gameObject.GetPhotonView().ViewID, "isSprinting", isSprinting);*/
                     }
                 }
                 else if (!useContinuousSprint && isSprinting)
                 {
                     isSprinting = false;
-                    Debug.Log("ShiftFalse");
-                    /*photonView.RPC("isSprinting", RpcTarget.All, this.gameObject.GetPhotonView().ViewID, isSprinting);
-                    SetAnimBool(this.gameObject.GetPhotonView().ViewID, "isSprinting", isSprinting);*/
                 }
             }
             else if (isSprinting)
             {
                 isSprinting = false;
-                Debug.Log("ShiftFalse");
-                /*photonView.RPC("isSprinting", RpcTarget.All, this.gameObject.GetPhotonView().ViewID, isSprinting);
-                SetAnimBool(this.gameObject.GetPhotonView().ViewID, "isSprinting", isSprinting);*/
             }
         }
-
-       /* public void SetAnimBool(int GoViedID, string action, bool truthfulness)
-        {
-            Animator animator = PhotonNetwork.GetPhotonView(GoViedID).gameObject.GetComponent<vThirdPersonController>().animatorr;
-            animator.SetBool(action, truthfulness);
-        }*/
     }
 }

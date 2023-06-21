@@ -10,10 +10,12 @@ public class MainMenu : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject GameSettingsmenu;
     [SerializeField] private GameObject AccountsSettingsmenu;
     [SerializeField] private GameObject GameSolomenu;
+    [SerializeField] private GameObject SelectHeroMenu;
 
     void Start()
     {
         Mainmenu.SetActive(true);
+        SelectHeroMenu.SetActive(false);
         GameSettingsmenu.SetActive(false);
         AccountsSettingsmenu.SetActive(false);
         GameSolomenu.SetActive(false);
@@ -35,13 +37,16 @@ public class MainMenu : MonoBehaviourPunCallbacks
     }
     public void GameSoloMenuButton()
     {
-        Mainmenu.SetActive(false);
-        GameSettingsmenu.SetActive(false);
-        AccountsSettingsmenu.SetActive(false);
-        GameSolomenu.SetActive(true);
+        MenuGame.OnlineOffline = false;
+        SelectHeroMenu.SetActive(true);
+    }
+    public void CloseGameSoloMenuButton()
+    {
+        SelectHeroMenu.SetActive(false);
     }
     public void GameNetworkButton()
     {
+        MenuGame.OnlineOffline = true;
         PhotonNetwork.ConnectUsingSettings();
     }
     public override void OnConnectedToMaster()
