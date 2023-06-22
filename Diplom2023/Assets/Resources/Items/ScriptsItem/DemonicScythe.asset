@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 836bfc9db9b0e4b4cbdc7a9e9323fc65, type: 3}
   m_Name: DemonicScythe
   m_EditorClassIdentifier: 
-  ItemName: "\u041A\u043E\u0441\u0430 \u0414\u0456\u043C\u043E\u043D\u0430"
+  ItemName: "\u041A\u043E\u0441\u0430 \u043C\u0435\u0440\u0446\u0456\u0432"
   itemType: 2
   itemPrefab: {fileID: 930273981601020034, guid: b02d6bb2c510d1a45b28da9d5ea8b004,
     type: 3}
   icon: {fileID: 21300000, guid: bffa85a169e7c8542952689259ca87b5, type: 3}
   MaximumAmount: 1
   ItemDescription: "\u041A\u043E\u0441\u0430 \u0414\u0456\u043C\u043E\u043D\u0430"
-  HealAmount: 0
+  HealthChenge: 0
   Damage: 10

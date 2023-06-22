@@ -3164,6 +3164,7 @@ MonoBehaviour:
   tpCamera: {fileID: 0}
   cameraMain: {fileID: 0}
   rHandWeaponSlot: {fileID: 8304514324241983413}
+  Mapa: {fileID: 2435187677722512225}
   isOpenFlourInv: 0
   isOpenInv: 0
 --- !u!54 &4422959326942843625

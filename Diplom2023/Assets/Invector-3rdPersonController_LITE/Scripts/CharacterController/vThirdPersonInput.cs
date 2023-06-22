@@ -31,6 +31,8 @@ namespace Invector.vCharacterController
         [HideInInspector] public Camera cameraMain;
 
         public Transform rHandWeaponSlot;
+        public GameObject Mapa;
+
 
         private PhotonView _photonView;
         public bool isOpenFlourInv = false; //PC
@@ -68,11 +70,8 @@ namespace Invector.vCharacterController
                 }
             }
 
-
-            //rHandWeaponSlot = GameObject.Find("PT_Right_Hand_Weapon_slot").GetComponent<Transform>();
-            //lHandWeaponSlot = GameObject.Find("PT_Left_Hand_Weapon_slot").GetComponent<Transform>();
-            //secondWeaponSlot = GameObject.Find("PT_Second_Weapon_slot").GetComponent<Transform>();
-            //sheatSlot =  = GameObject.Find("PT_Sheat_slot").GetComponent<Transform>();
+            InventoryManager.rHandWeaponSlot = rHandWeaponSlot;
+            InventoryManager.Mapa = Mapa;
         }
 
         protected virtual void FixedUpdate()
@@ -97,31 +96,6 @@ namespace Invector.vCharacterController
         {
             InputHandle();                  // update the input methods
             cc.UpdateAnimator();            // updates the Animator Parameters
-
-            if (rHandWeaponSlot.GetChild(0) != null && rHandWeaponSlot.GetChild(0).GetComponent<Rigidbody>() != null)
-            {
-                DestroyColliders(rHandWeaponSlot.GetChild(0).gameObject);
-            }
-        }
-
-        public void DestroyColliders(GameObject gameObject)
-        {
-            rHandWeaponSlot.GetChild(0).tag = "Weapon";
-            rHandWeaponSlot.GetChild(0).gameObject.layer = LayerMask.NameToLayer("weapon");
-            Destroy(rHandWeaponSlot.GetChild(0).GetComponent<Rigidbody>());
-            Destroy(rHandWeaponSlot.GetChild(0).GetComponent<PhotonView>());
-            Destroy(rHandWeaponSlot.GetChild(0).GetComponent<PhotonTransformView>());
-
-            Collider[] colliders = gameObject.GetComponents<Collider>();
-            foreach (Collider collider in colliders)
-            {
-                Destroy(collider);
-            }
-            
-            var colider = gameObject.AddComponent<BoxCollider>();
-            colider.isTrigger = true;
-            colider.size = new Vector3(7.88f, 17.32f, 1f);
-            colider.center = new Vector3(4.42f, -0.9f, 0f);
         }
 
         public virtual void OnAnimatorMove()

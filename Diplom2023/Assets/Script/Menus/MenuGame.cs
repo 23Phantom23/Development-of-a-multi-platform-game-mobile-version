@@ -15,6 +15,7 @@ public class MenuGame : MonoBehaviourPunCallbacks
 
     [Header("Menu Panel")]
     [SerializeField] private GameObject MenuPause;
+    [SerializeField] public static GameObject MenuPauses;
     [SerializeField] private GameObject MenuInventory;
     [SerializeField] private GameObject MenuItemsOnFlour;
     [SerializeField] public GameObject MenuItemsOnFlourButton;
@@ -56,7 +57,8 @@ public class MenuGame : MonoBehaviourPunCallbacks
         ItemsOnFlourScript.menuItemsOnFlourButton = MenuItemsOnFlourButton;
         MenuOnFlour.content = content;
         MenuOnFlour.slots = slots;
-        
+
+        MenuPauses = MenuPause;
 
         MenuPause.SetActive(false);
         MenuInventory.SetActive(false);
@@ -66,20 +68,24 @@ public class MenuGame : MonoBehaviourPunCallbacks
     public void OpenMenuPauseButton()
     {
         MenuPause.SetActive(true);
+        InventoryManager.Mapa.SetActive(false);
     }
     public void CloseMenuPauseButton()
     {
         MenuPause.SetActive(false);
+        InventoryManager.Mapa.SetActive(true);
     }
     public void OpenMenuInventoryButton()
     {
         MenuInventory.SetActive(true);
+        InventoryManager.Mapa.SetActive(false);
     }
     public void CloseMenuInventoryButton()
     {
         InventoryManager.idSelectedInv = 0;
         InventoryManager.idSelectedQuickBarInv = 0;
         MenuInventory.SetActive(false);
+        InventoryManager.Mapa.SetActive(true);
     }
     public void OpenMenuItemsOnFlour()
     {

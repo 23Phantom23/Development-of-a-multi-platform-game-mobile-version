@@ -21,7 +21,9 @@ public class InventoryManager : MonoBehaviour
     public Button DeleteItemButton;
     public static GameObject InteractiveButton;
     public Transform playerYou;
-    public Transform rHandWeaponSlot;
+    public static Transform rHandWeaponSlot;
+    public static GameObject Mapa;
+    public GameObject weapon;
 
     void Start()
     {
@@ -46,7 +48,6 @@ public class InventoryManager : MonoBehaviour
         }
 
         playerYou = GameObject.Find(PlayerManager.YouPerson + "(Clone)").transform;
-        rHandWeaponSlot = GameObject.Find("rHandWeaponSlot").transform;
         InteractiveButton.GetComponentInChildren<TMP_Text>().text = "";
     }
 
@@ -184,7 +185,7 @@ public class InventoryManager : MonoBehaviour
 
     public void InteractiveItemButton()
     {
-        if (idSelectedInv != 0)
+        if (idSelectedInv != 0) //Одіти зброю або в хот бор
         {
             if (slots[idSelectedInv - 1].item.itemType == ItemType.Food)
             {
@@ -196,20 +197,74 @@ public class InventoryManager : MonoBehaviour
             }
             if (slots[idSelectedInv - 1].item.itemType == ItemType.WeaponSword)
             {
-                AddItemToArmor(slots[idSelectedInv - 1].item, slots[idSelectedInv - 1].amount);
-                slots[idSelectedInv - 1].item = null;
+                if (slotsArmor[0].item == null)
+                {
+                    AddItemToArmor(slots[idSelectedInv - 1].item, slots[idSelectedInv - 1].amount);
+                    weapon = SwordInArmor(slots[idSelectedInv - 1].item.itemPrefab);
+                    slots[idSelectedInv - 1].item = null;
+                }
             }
         }
-        if (idSelectedQuickBarInv != 0)
+        if (idSelectedQuickBarInv != 0) //Зняти хот бар
         {
             AddItem(QuickBar.slotsQuickBar[idSelectedQuickBarInv - 1].item, QuickBar.slotsQuickBar[idSelectedQuickBarInv - 1].amount);
             QuickBar.slotsQuickBar[idSelectedQuickBarInv - 1].item = null;
         }
-        if (idSelectedArmor != 0)
+        if (idSelectedArmor != 0) //Зняти зброю
         {
             AddItem(slotsArmor[idSelectedArmor - 1].item, slotsArmor[idSelectedArmor - 1].amount);
             slotsArmor[idSelectedArmor - 1].item = null;
+
+            Destroy(weapon);
         }
+    }
+
+    public GameObject SwordInArmor(GameObject obj)
+    {
+        GameObject newObject;
+
+        if (MenuGame.OnlineOffline) //MenuGame.OnlineOffline if online and !MenuGame.OnlineOffline if offline
+        {
+            newObject = Instantiate(obj);
+            //newObject = PhotonNetwork.Instantiate(obj);
+        }
+        else
+        {
+            newObject = Instantiate(obj);
+        }
+
+        newObject.transform.parent = rHandWeaponSlot;
+        newObject.tag = "Weapon";
+        newObject.layer = LayerMask.NameToLayer("weapon");
+        Destroy(newObject.GetComponent<Rigidbody>());
+        Destroy(newObject.GetComponent<PhotonView>());
+        Destroy(newObject.GetComponent<PhotonTransformView>());
+        Collider[] colliders = gameObject.GetComponents<Collider>();
+        foreach (Collider collider in colliders)
+        {
+            Destroy(collider);
+        }
+
+        var colider = gameObject.AddComponent<BoxCollider>();
+        colider.isTrigger = true;
+
+        if (newObject.GetComponent<Item>().item.ItemName == "Коса мерців")
+        {
+            newObject.transform.localPosition = new Vector3(0.264f, -0.432f, 0.003f);
+            newObject.transform.localRotation = new Quaternion(0, 0, 180, 0);
+
+            colider.size = new Vector3(7.88f, 17.32f, 1f);
+            colider.center = new Vector3(4.42f, -0.9f, 0f);
+        }
+        if (newObject.GetComponent<Item>().item.ItemName == "Посох Патріка")
+        {
+            newObject.transform.localPosition = new Vector3(-0.007f, -0.723f, 0.025f);
+            newObject.transform.localRotation = new Quaternion(0, 0, 0, 0);
+
+            colider.size = new Vector3(0.1f, 1.9f, 0.1f);
+            colider.center = new Vector3(0f, 0.4f, 0f);
+        }
+        return newObject;
     }
 
     public static void UpdatesInfo()
